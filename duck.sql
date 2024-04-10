@@ -54,3 +54,7 @@ from
 where
     orig_table.id_acronym = sorted_table.id_acronym
 order by orig_table.index;
+
+-- Check the resulting table
+-- from test_sorted
+-- where orig_index != sorted_index;
