@@ -24,19 +24,19 @@ CREATE SEQUENCE seq_sorted START 1;
 
 create or replace temp table orig_table as
     select nextval('seq_original') as index,
-    id_acronym from acronyms;
+    id_acronym, description from acronyms;
 
 create or replace temp table sorted_table as
     select nextval('seq_sorted') as index,
-    id_acronym
-    from (select id_acronym from acronyms order by id_acronym);
+    id_acronym, description
+    from (select id_acronym, description from acronyms order by id_acronym, description);
 
 -- Check the resulting tables
 from orig_table;
 from sorted_table;
 
 -- Create the table that compares the sorted and original tables columns
-create or replace temp table test_sorted(orig_id_acronym varchar,
+create or replace temp table test_sorted(orig_id_acronym varchar, orig_description varchar,
                                     orig_index integer,
                                     sorted_index integer
                                     -- the magic part XD
@@ -46,6 +46,7 @@ create or replace temp table test_sorted(orig_id_acronym varchar,
 insert into test_sorted
 select
     orig_table.id_acronym as orig_id_acronym,
+    orig_table.description as orig_description,
     orig_table.index as orig_index,
     sorted_table.index as sorted_index,
 from
@@ -53,6 +54,7 @@ from
     sorted_table
 where
     orig_table.id_acronym = sorted_table.id_acronym
+    and orig_table.description = sorted_table.description
 order by orig_table.index;
 
 -- Check the resulting table
