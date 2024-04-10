@@ -1,0 +1,24 @@
+# This workflow will check out the code, install DuckDb then run data quality tests
+# For more information see: https://dev.to/optnc/effortless-data-quality-wduckdb-on-github-2mkb
+name: 🧪 Check data
+
+
+on: [pull_request, push]
+
+jobs:
+  test:
+    name: 🧪 Verify data
+    runs-on: ubuntu-latest
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+
+      - name: ⚙️ Install DuckDB
+        uses: opt-nc/setup-duckdb-action@v1.0.7
+        with:
+          version: ${{ vars.VERSION_DUCKDB}}
+
+
+      - name : 🕵️‍♂️ Check data integrity
+        run: |
+          duckdb < duck.sql
