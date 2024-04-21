@@ -1,19 +1,22 @@
--- Load acronyms data
+-- Create table with constraints
 create or replace table acronyms (
     id_acronym VARCHAR NOT NULL CHECK (id_acronym = UPPER(id_acronym)),
+    id_acronym_unique VARCHAR PRIMARY KEY CHECK (id_acronym_unique like id_acronym || '%'),
     description  VARCHAR UNIQUE
 );
 
-insert into acronyms (id_acronym, description)
+-- Load acronyms csv data into table
+insert into acronyms (id_acronym, id_acronym_unique, description)
 from
     (
         FROM read_csv('data/acronyms_optnc.csv',
                             header = true,
                             columns = {
                                 'id_acronym': 'VARCHAR',
+                                'id_acronym_unique': 'VARCHAR',
                                 'description': 'VARCHAR'
     })
-    ) t;
+);
 
 -- Get a preveiw
 from acronyms limit 5;
@@ -39,7 +42,7 @@ create or replace temp table sorted_table as
                 description
             from acronyms
             -- order by acronym and description
-            order by id_acronym, description);
+            order by id_acronym, id_acronym_unique, description);
 
 -- Check the resulting tables
 from orig_table limit 5;
@@ -73,3 +76,11 @@ order by orig_table.index;
 -- Check the resulting table
 -- from test_sorted
 -- where orig_index != sorted_index;
+
+-- reporting des duplicats
+from acronyms
+    select id_acronym,
+        count(*) as nb_occurrences
+    group by id_acronym
+    having nb_occurrences > 1
+    order by nb_occurrences desc;
